@@ -30,7 +30,36 @@ def min_ttc(R: core.Rollout, cap: float = 10.0) -> np.ndarray:
     Shapes: R.F is (K, NF, N, 7) with x, z, hx, hz, v, a, d; core.IX["ego"] is the ego's actor index.
     Vectorise over frames (a Python loop over 481 frames x K scenarios is too slow for Part C).
     """
-    raise NotImplementedError("TODO 1: min_ttc")
+    F = R.F
+    K, NF = F.shape[:2]
+    ego = core.IX["ego"]
+
+    out = np.full(K, cap, dtype=float)
+    crashed = np.array([bool(ego_events(R, k)) for k in range(K)])
+
+    leaders = R.EGO[:, :, 3].astype(int)
+    valid = leaders >= 0
+    if np.any(valid):
+        kk, ff = np.indices((K, NF))
+        leader_ix = np.where(valid, leaders, ego)
+        e = F[:, :, ego]
+        l = F[kk, ff, leader_ix]
+
+        rx = l[..., 0] - e[..., 0]
+        rz = l[..., 1] - e[..., 1]
+        lon = rx * e[..., 2] + rz * e[..., 3]
+        actors = R.actors or core.ACTORS
+        lens = np.array([a.dims[0] for a in actors], dtype=float)
+        kinds = np.array([a.kind for a in actors], dtype=object)
+        half_len = lens[leader_ix] / 2.0
+        half_len = np.where(kinds[leader_ix] == "ped", 0.3, half_len)
+        gap = np.maximum(lon - HALF_EGO - half_len, 0.0)
+        dv = e[..., 4] - l[..., 4]
+        ttc = np.where(valid & (dv > 0.1), gap / np.maximum(dv, 1e-6), np.inf)
+        out = np.minimum(cap, np.min(ttc, axis=1))
+
+    out[crashed] = 0.0
+    return out
 
 
 def contact_type(R: core.Rollout, k: int, event: dict) -> str:
@@ -39,13 +68,31 @@ def contact_type(R: core.Rollout, k: int, event: dict) -> str:
     Put the other actor in the ego's frame: lon = r . h, lat = -r_x h_z + r_z h_x with h = (hx, hz) of the ego.
     'front' if lon > 2.3 and |lat| < 1.6; 'rear' if lon < -2.3 and |lat| < 1.6; otherwise 'side'.
     """
-    raise NotImplementedError("TODO 2: contact_type")
+    f = int(event["f"])
+    ego = core.IX["ego"]
+    other_name = event["b"] if event["a"] == "ego" else event["a"]
+    other = (R.ids if R.actors is not None else core.IDS).index(other_name)
+    e = R.F[k, f, ego]
+    o = R.F[k, f, other]
+    rx, rz = o[0] - e[0], o[1] - e[1]
+    lon = rx * e[2] + rz * e[3]
+    lat = -rx * e[3] + rz * e[2]
+    if lon > HALF_EGO and abs(lat) < 1.6:
+        return "front"
+    if lon < -HALF_EGO and abs(lat) < 1.6:
+        return "rear"
+    return "side"
 
 
 def progress_metrics(R: core.Rollout) -> tuple[np.ndarray, np.ndarray]:
     """TODO 9. Two (K,) arrays: the distance the ego covers in the 24 s (sum of frame-to-frame steps, metres),
     and the number of frames where the ego brakes harder than 3 m/s^2 (acceleration column < -3)."""
-    raise NotImplementedError("TODO 9: progress_metrics")
+    ego = R.F[:, :, core.IX["ego"]]
+    dx = np.diff(ego[..., 0], axis=1)
+    dz = np.diff(ego[..., 1], axis=1)
+    dist = np.sqrt(dx * dx + dz * dz).sum(axis=1)
+    harsh = (ego[..., 5] < -3.0).sum(axis=1)
+    return dist, harsh
 
 
 # ---------------------------------------------------------------- given helpers

@@ -1,0 +1,103 @@
+{
+ "file": "hazard.json",
+ "hazards": [
+  {
+   "x": 118.0,
+   "lane": "E2",
+   "d": 1.2,
+   "v": 5.5,
+   "swerve": 1.2,
+   "swDur": 1.8,
+   "t0": 0.0,
+   "trig": 24.0,
+   "type": "bike"
+  }
+ ],
+ "space": {
+  "h0_x": [
+   90.0,
+   150.0
+  ],
+  "h0_d": [
+   0.8,
+   1.4
+  ],
+  "h0_v": [
+   4.0,
+   7.0
+  ],
+  "h0_swerve": [
+   0.8,
+   1.5
+  ],
+  "h0_swDur": [
+   1.6,
+   2.5
+  ],
+  "h0_trig": [
+   16.0,
+   34.0
+  ]
+ },
+ "world": "town",
+ "exposure": 0.03,
+ "why": "Xe dap di sat le o lan ngoai bat ngo lang trai de tranh o ga hoac xe dung sat mep duong. Range x 90-150 m dat truoc vach qua duong de ego co toc do on dinh; v 4-7 m/s la toc do xe dap do thi; swerve 0.8-1.5 m trong 1.6-2.5 s giu gia toc ngang duoi 3 m/s^2; trig 16-34 m mo phong viec lang khi ego da den gan. Exposure 0.03/chuyen la gia dinh day hoc cho mot tinh huong xe dap bat ngo tren khoang duong ngan, khong phai tan suat thuc te.",
+ "exact": {
+  "planner": []
+ },
+ "infeasible": 8,
+ "accepted": 0.9946666666666667,
+ "conditional_on": "your town's traffic",
+ "baseline": {
+  "n": 1155,
+  "crashes": 0,
+  "avoidable": 0,
+  "unavoidable": 0,
+  "unattributed": 0,
+  "low_speed": 0,
+  "avoidable_foreknown": 0,
+  "overlap_at_start": 337,
+  "by_hazard": {},
+  "examples": [],
+  "p": 0.0,
+  "lo": 0.0,
+  "hi": 0.0033150346000695866,
+  "per_trip": 0.0,
+  "per_trip_hi": 9.94510380020876e-05
+ },
+ "chosen": {
+  "n": 1155,
+  "crashes": 0,
+  "avoidable": 0,
+  "unavoidable": 0,
+  "unattributed": 0,
+  "low_speed": 0,
+  "avoidable_foreknown": 0,
+  "overlap_at_start": 337,
+  "by_hazard": {},
+  "examples": [],
+  "p": 0.0,
+  "lo": 0.0,
+  "hi": 0.0033150346000695866,
+  "per_trip": 0.0,
+  "per_trip_hi": 9.94510380020876e-05
+ },
+ "_run": {
+  "mssv": "2A202602621",
+  "town": "D",
+  "quick": false,
+  "step": "all",
+  "salted": false,
+  "budgets": {
+   "replay_n": 400,
+   "mc_n": 3000,
+   "iters": 8,
+   "per_iter": 300,
+   "final_n": 600,
+   "seeds": 3,
+   "fix_n": 400,
+   "progress_n": 256,
+   "mine_n": 1500
+  }
+ }
+}
